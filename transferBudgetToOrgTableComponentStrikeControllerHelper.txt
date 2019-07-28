@@ -1,0 +1,58 @@
+({
+    handleInteractionCompEvent: function(component, event, helper) {
+        var action = event.getParam('action');
+        var payload = event.getParam('payload');
+        switch (action) {
+            case 'showTransferBudgetCommentModal':
+                component.set("v.showTransferBudgetCommentModal", false);
+                break;
+            case 'CLOSE_COMMENT':
+                helper.hideCommentModal(component, payload.recordId);
+                break;
+
+        }
+    },
+
+    showCommentModal: function(component, event, helper) {
+        var orgUnitId = event.currentTarget.getAttribute('data-id');
+        var allocateToOrgUnitList = component.get('v.allocateToOrgUnitList');
+        var orgUnitDetails = _.find(allocateToOrgUnitList, function(allocateToOrg) {
+            return _.get(allocateToOrg, 'organizationUnit.Id') === orgUnitId;
+        });
+        orgUnitDetails.isCommentOpen = !orgUnitDetails.isCommentOpen;
+        component.set('v.allocateToOrgUnitList', allocateToOrgUnitList);
+    },
+
+    hideCommentModal: function(component, orgUnitId) {
+        var allocateToOrgUnitList = component.get('v.allocateToOrgUnitList');
+        var orgUnitDetails = _.find(allocateToOrgUnitList, function(allocateToOrg) {
+            return _.get(allocateToOrg, 'organizationUnit.Id') === orgUnitId;
+        });
+        orgUnitDetails.isCommentOpen = !orgUnitDetails.isCommentOpen;
+        component.set('v.allocateToOrgUnitList', allocateToOrgUnitList);
+    },
+
+    showDeleteModal: function(component, event, helper) {
+        var selectedRecId = event.getSource().get("v.value");
+        component.set('v.deleteRecordId', selectedRecId);
+        helper.fireCompEvent(component, helper, 'SHOW_DELETE_MODAL');
+        var strikeModal = component.find('strikeModal');
+        strikeModal.show();
+    },
+
+    deleteOrgUnit: function(component, helper, deleteRecordId) {
+        var allocateToOrgUnitListTemp = component.get("v.allocateToOrgUnitList");
+        var indexOfDeleteOrgUnit = _.findIndex(allocateToOrgUnitListTemp, function(a) {
+            return a.organizationUnit.Id == deleteRecordId;
+        });
+        allocateToOrgUnitListTemp.splice(indexOfDeleteOrgUnit, 1);
+        component.set("v.allocateToOrgUnitList", allocateToOrgUnitListTemp);
+        helper.fireCompEvent(component, helper, 'HIDE_DELETE_MODAL');
+        var strikeModal = component.find('strikeModal');
+        strikeModal.hide();
+    },
+
+    searchOrgUnit: function(component, event, helper) {
+        helper.fireCompEvent(component, helper, 'SHOW_SEARCH_ORG_UNIT_MODAL');
+    },
+})

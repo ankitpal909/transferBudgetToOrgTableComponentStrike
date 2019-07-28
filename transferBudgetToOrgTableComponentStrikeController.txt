@@ -1,0 +1,26 @@
+({    
+    onClickOfCommentIcon: function(component, event, helper) {
+        helper.showCommentModal(component, event, helper);
+    },
+
+    handleInteractionCompEvent: function(component, event, helper) {
+        helper.handleInteractionCompEvent(component, event, helper);
+    },
+
+    getCount: function(component, event, helper) {
+        var count = event.getSource().get("v.value");
+    },
+
+    showSearchOrgUnit: function(component, event, helper) {
+        helper.searchOrgUnit(component, event, helper);
+    },
+
+    showDeleteModal: function(component, event, helper) {
+        helper.showDeleteModal(component, event, helper);
+    },
+
+    deleteOrgUnit: function(component, event, helper) {
+        var deleteRecordId = component.get('v.deleteRecordId');
+        helper.deleteOrgUnit(component, helper, deleteRecordId);
+    },
+})

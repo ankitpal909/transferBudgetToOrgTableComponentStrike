@@ -1,0 +1,250 @@
+<aura:component extends="c:RecordBaseComponentClone">
+
+    <!-- DESIGNER ATTRIBUTE START -->
+    <aura:attribute name="deleteBudgetActionVisibility" type="String" default="Show" access="global" description="Determines whether users are allowed to delete a budget(s)" />
+    <aura:attribute name="availableForLowerLevelSectionVisibility" type="String" access="global" />
+    <aura:attribute name="availableForLowerLevelFieldState" type="Boolean" access="global" />
+    <!-- DESIGNER ATTRIBUTE END -->
+
+    <!-- START PUBLIC ATTRIBUTES -->
+    <aura:attribute name="allocatedAmount" type="Decimal" />
+    <aura:attribute name="allocatedCount" type="Decimal" />
+    <aura:attribute name="allocateToOrgUnitList" type="Object[]" description="To display Table Data" />
+    <aura:attribute name="selectedCurrency" type="String" description="For Currency type USD/RUP" />
+
+    <aura:attribute name="budgetRecordTypeReturnTypes" type="object[]" default="[]" />
+    <aura:attribute name="showSearchAddOrgUnitModal" type="Boolean" default="false" />
+    <aura:attribute name="allocateFromOrgUnitData" type="Object" />
+    <aura:attribute name="deleteRecordId" type="String" />
+    <aura:attribute name="willHandleCompActions" type="String[]" default="['CLOSE_COMMENT']" />
+    <aura:attribute name="canFireCompActions" type="String[]" default="['SHOW_SEARCH_ORG_UNIT_MODAL']" />
+    <!-- END PUBLIC ATTRIBUTES -->
+
+    <!--Event Registration-->
+    <aura:registerEvent name="interactionCompEvent" type="c:interactionCompEvent" />
+    <!--Event Registration-->
+
+    <!--Handler-->
+    <aura:handler name="interactionCompEvent" event="c:interactionCompEvent" action="{!c.handleInteractionCompEvent}" />
+    <aura:handler name="strike_evt_modalPrimaryButtonClicked" event="c:strike_evt" action="{!c.deleteOrgUnit}" description="Handle delete org unit action" />
+    <!--Handler-->
+
+    <!--Table-->
+    <div class="slds-m-top_small" aura:id="documentContent">
+        <table role="grid" class="slds-table slds-table_fixed-layout slds-table_bordered slds-no-row-hover">
+
+            <thead class="slds-text-title_caps">
+                <tr class="slds-line-height_reset">
+                    <th class="ahm-white_bgColor1" scope="col" title="{!$Label.c.ORG_UNIT_LBL}">
+                        <div class="slds-truncate">
+                            {!$Label.c.ORG_UNIT_LBL}
+                        </div>
+                    </th>
+                    <th class="{!or(and(equals(v.budgetRecordTypeReturnTypes[0].value, 'Money'),
+                        			equals(v.budgetRecordTypeReturnTypes.length, 1)),                        
+                        			equals(v.budgetRecordTypeReturnTypes.length, 2)) ? 'ahm-white_bgColor1' : 'slds-hide'}" 
+                        scope="col" 
+                        title="{!$Label.c.Amount}">
+                        <div class="slds-truncate">
+                            {!$Label.c.Amount}
+                        </div>
+                    </th>
+                    <th class="{!or(and(equals(v.budgetRecordTypeReturnTypes[0].value, 'Count'),
+                        			equals(v.budgetRecordTypeReturnTypes.length, 1)),                        
+                        			equals(v.budgetRecordTypeReturnTypes.length, 2)) ? 'ahm-white_bgColor1' : 'slds-hide'}" 
+                        scope="col" 
+                        title="{!$Label.c.Count_TXT}">
+                        <div class="slds-truncate">
+                            {!$Label.c.Count_TXT}
+                        </div>
+                    </th>
+                    <th class="{!equals(v.availableForLowerLevelSectionVisibility,'Show')?'ahm-white_bgColor1':'slds-hide'}" 
+                    	scope="col" 
+                    	title="{!$Label.c.FM_AVAILABLE_FOR_LOWER_LEVEL_TEXT}">
+                        <div class="slds-truncate">
+                            {!$Label.c.FM_AVAILABLE_FOR_LOWER_LEVEL_TEXT}
+                        </div>
+                    </th>
+                    <th class="{!empty(v.allocateToOrgUnitList) ? 'slds-hide' : 'ahm-white_bgColor1'}" scope="col">
+                        <div class="slds-truncate">
+                        </div>
+                    </th>
+                </tr>
+            </thead>
+
+            <tbody class="slds-p-top_x-small">
+                <aura:iteration items="{!v.allocateToOrgUnitList}" var="orgUnitDetails" indexVar="index">
+                    <tr class="slds-hint-parent slds-line-height_reset" style="line-height : 1.2rem">
+                        <td tabindex="0" class="ahm-noCellOutline">
+                            <div class="slds-p-vertical_small">   
+                                
+                                <!-- START ORG UNIT NAME SECTION -->          
+                                <div class="ahm-tooltip slds-is-relative">
+                                    <div class="slds-truncate">
+                                        <b>{!orgUnitDetails.organizationUnit.Name}</b>   
+                                    </div>
+                                    
+                                    <!-- START POPOVER SECTION -->
+                                    <div class="{!empty(orgUnitDetails.organizationUnit.Name) ? 'slds-hide' : 'ahm-tooltiptext' }">
+                                        <div class="slds-nubbin_bottom slds-popover slds-popover_tooltip">
+                                            <div class="slds-popover__body ">	
+                                                {!orgUnitDetails.organizationUnit.Name}
+                                            </div>
+                                        </div>
+                                    </div>  
+                                    <!-- END ORG UNIT NAME SECTION -->   
+                                    
+                                </div>
+                                
+                                <div class="ahm-tooltip slds-is-relative">
+                                    <div class="slds-truncate">
+                                        {!orgUnitDetails.organizationUnit.Organization_Unit_Number__c}  
+                                    </div>
+                                    
+                                    <!-- START POPOVER SECTION -->
+                                    <div class="{!empty(orgUnitDetails.organizationUnit.Organization_Unit_Number__c) ? 'slds-hide' : 'ahm-tooltiptext' }">
+                                        <div class="slds-nubbin_bottom slds-popover slds-popover_tooltip">
+                                            <div class="slds-popover__body ">	
+                                                {!orgUnitDetails.organizationUnit.Organization_Unit_Number__c}
+                                            </div>
+                                        </div>
+                                    </div>  
+                                    <!-- END ORG UNIT NAME SECTION -->                                       
+                                </div>
+                                
+                                <!-- START VIEW MEMEBERS SECTION -->              
+                                <div>
+                                    <c:viewMembers members="{!orgUnitDetails.employeeList}" topPopupFlag="false" />
+                                </div>  
+                                <!-- END VIEW MEMBERS SECTION -->              
+                                
+                                <!-- START AVAILABLE BALANCE SECTION -->              
+                                <div class="{!or(and(equals(v.budgetRecordTypeReturnTypes[0].value, 'Money'),
+                                            equals(v.budgetRecordTypeReturnTypes.length, 1)),                        
+                                            equals(v.budgetRecordTypeReturnTypes.length, 2)) ? 'ahm-tooltip slds-is-relative' : 'slds-hide'}">                                      
+                                    <div class=" slds-text-color_weak slds-truncate">
+                                        --label--Available Balance: {!v.selectedCurrency}&nbsp;{!orgUnitDetails.availableAmount.amount}
+                                    </div>                                   
+                                    
+                                    <!-- START POPOVER SECTION -->
+                                    <div class="ahm-tooltiptext">
+                                        <div class="slds-nubbin_bottom slds-popover slds-popover_tooltip">
+                                            <div class="slds-popover__body ">	
+                                                --label--Available Balance: {!v.selectedCurrency}&nbsp;{!orgUnitDetails.availableAmount.amount}
+                                            </div>
+                                        </div>
+                                    </div>              
+                                </div>
+                                <!-- END AVAILABLE BALANCE SECTION -->       
+                                
+                                <!-- START AVAILABLE COUNT SECTION -->              
+                                <div class="{!or(and(equals(v.budgetRecordTypeReturnTypes[0].value, 'Count'),
+                                                equals(v.budgetRecordTypeReturnTypes.length, 1)),                        
+                                                equals(v.budgetRecordTypeReturnTypes.length, 2)) ? 'ahm-tooltip slds-is-relative' : 'slds-hide'}"> 
+                                       <div class=" slds-text-color_weak slds-truncate">
+                                           --label--Available Count: {!orgUnitDetails.availableCount}
+                                        </div>
+                                    
+                                    <!-- START POPOVER SECTION -->
+                                    <div class="ahm-tooltiptext">
+                                        <div class="slds-nubbin_bottom slds-popover slds-popover_tooltip">
+                                            <div class="slds-popover__body ">	
+                                                --label--Available Count: {!orgUnitDetails.availableCount}
+                                            </div>
+                                        </div>
+                                    </div>              
+                                </div>
+                                <!-- END AVAILABLE COUNT SECTION -->   
+                                
+                            </div>
+                        </td>
+                        
+                        <td class="{!or(and(equals(v.budgetRecordTypeReturnTypes[0].value, 'Money'),
+                        			equals(v.budgetRecordTypeReturnTypes.length, 1)),                        
+                        			equals(v.budgetRecordTypeReturnTypes.length, 2)) ? '' : 'slds-hide'}">
+                            <div class="slds-size_7-of-12">
+                                <div class="slds-box slds-grid slds-theme_shade">
+                                    <div class="slds-m-right_x-small slds-m-top_xx-small">
+                                        {!v.selectedCurrency}
+                                    </div>
+                                    <div class="ahm-boxInput">
+                                        <lightning:input value="{!orgUnitDetails.amount}" 
+                                        				 maximumFractionDigits="2" 
+                                        				 type="Number"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="{!or(and(equals(v.budgetRecordTypeReturnTypes[0].value, 'Count'),
+                        			equals(v.budgetRecordTypeReturnTypes.length, 1)),                        
+                        			equals(v.budgetRecordTypeReturnTypes.length, 2)) ? 'x' : 'slds-hide'}">
+                            <div class="slds-size_7-of-12">
+                                <div class="slds-box slds-grid slds-theme_shade">
+                                    <div class="ahm-boxInput">
+                                        <lightning:input value="{!orgUnitDetails.count}" 
+                                        				 type="Number" 
+                                        				 onkeyup="{!c.getCount}"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="{!equals(v.availableForLowerLevelSectionVisibility,'Show')?'':'slds-hide'}">
+                            <lightning:input type="checkbox" class="slds-p-horizontal_medium" checked="{!orgUnitDetails.availableForLowerLevel}"
+                                             value="{!orgUnitDetails.availableForLowerLevel}"/>
+                        </td>
+                        <td>
+                            <div class="slds-float_right slds-grid slds-p-horizontal_medium slds-p-around_medium">
+                                <div data-id="{!orgUnitDetails.organizationUnit.Id}" class="slds-is-relative 
+                                            slds-m-right--xx-small" onclick="{!c.onClickOfCommentIcon}">
+                                    <lightning:buttonIcon variant="border-filled" iconName="utility:comments" alternativeText="{!$Label.c.FM_COMMENTS_TEXT}" size="small" />
+                                    <span class="{!empty(orgUnitDetails.comments) ? 'slds-hide': 
+                                                 'ahm-notify-count'}">
+                                        1
+                                    </span>
+                                </div>
+                                <aura:if isTrue="{!orgUnitDetails.isCommentOpen}">
+                                    <c:CommentModal recordId="{!orgUnitDetails.organizationUnit.Id}" editMode="true" headerText="{!$Label.c.FM_COMMENTS_TEXT}" index="{!index}" bodyText="{!orgUnitDetails.comments}" />
+                                </aura:if>
+                                <span>
+                                    <lightning:buttonMenu class="slds-p-left_xx-small" iconSize="small" 
+                                                          menuAlignment="right">
+                                        <aura:if isTrue="{!equals(v.deleteBudgetActionVisibility,'Show')}">
+                                            <lightning:menuItem value="{!orgUnitDetails.organizationUnit.Id}" 
+                                            					label="Delete" 
+																onactive="{!c.showDeleteModal}"/>
+                                            <aura:set attribute="else">
+                                                <lightning:menuItem label="No Actions Available" 
+                                                                    disabled="true" />
+                                            </aura:set>
+                                        </aura:if>
+                                    </lightning:buttonMenu>
+                                </span>
+                            </div>
+                        </td>
+                    </tr>
+                </aura:iteration>
+            </tbody>
+        </table>
+
+        <c:strike_modal aura:id="strikeModal" title="{!$Label.c.VF_Label_Delete}" secondaryButtonLabel="{!$Label.c.Cancel_Button}" primaryButtonLabel="{!$Label.c.VF_Label_Delete}" showHeader="true" showFooter="true" showModal="false" showCrossButton="false">
+            <div class="modal-body">
+                <div class="slds-text-align_center">
+                    <c:icon iconName="utility:delete" size="medium" class="ahm-DeleteIconBackgroundColor" />
+                    <div class="slds-p-top_small">
+                        {! $Label.c.FM_MESSAGE_CONFIRMATION_TEXT_REMOVE_MESSAGE}
+                    </div>
+                </div>
+            </div>
+        </c:strike_modal>
+
+        <div class="{!empty(v.allocateToOrgUnitList) ? 'slds-align-middle slds-p-vertical_x-large slds-border_bottom' : 'slds-hide'}">
+            <lightning:button aura:id="searchOrgUnit" class="slds-align_absolute-center" label="Search Organization Unit" onclick="{!c.showSearchOrgUnit}" />
+
+            <div class="slds-align_absolute-center slds-m-top_x-small ">Use the 'Search Organization Unit' button to look for parent organizations or lateral organization units</div>
+
+        </div>
+
+    </div>
+    <!--Table-->
+
+</aura:component>
